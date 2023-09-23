@@ -1,28 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Papa from "papaparse";
 
 function App() {
-  const [data, setData] = useState<string>("");
+  const [data, setData] = useState<Array<{ Name: string }>>([]);
 
-  if (data === "") {
+  if (data.length === 0) {
     return (
       <>
         <div>
           <textarea
-            onChange={(event) => setData(event.target.value)}
+            onChange={(event) =>
+              setData(
+                Papa.parse<{ Name: string }[]>(event.target.value, {
+                  header: true,
+                })
+              )
+            }
             value={data}
           />
         </div>
       </>
     );
   }
-  const parsedData = Papa.parse(data, { header: true });
   return (
     <>
       <div>
         <button onClick={() => setData("")}>reset</button>
-        <pre>{JSON.stringify(parsedData.data, null, 2)}</pre>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
       </div>
     </>
   );
