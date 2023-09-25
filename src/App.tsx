@@ -4,14 +4,22 @@ import {
   Box,
   Button,
   Container,
+  Divider,
+  FormControl,
+  FormLabel,
   Image,
   ListItem,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Select,
   SimpleGrid,
   Textarea,
   UnorderedList,
-  Select,
-  FormLabel,
-  FormControl,
 } from "@chakra-ui/react";
 
 type CsvData = {
@@ -97,7 +105,7 @@ function App() {
     <>
       <Container maxW="container.lg">
         <Box>
-          <SimpleGrid columns={3}>
+          <SimpleGrid columns={3} gap="6">
             <FormControl>
               <FormLabel>Filter for Rarity</FormLabel>
               <Select placeholder="Select Rarity">
@@ -107,11 +115,23 @@ function App() {
                 <option value="M">Mythic</option>
               </Select>
             </FormControl>
-            <Box>
-              <Button onClick={() => setData([])}>reset</Button>
-            </Box>
+            <FormControl>
+              <FormLabel>Filter for Color</FormLabel>
+              <Select placeholder="Select Rarity">
+                <option value="W">White</option>
+                <option value="U">Blue</option>
+                <option value="B">Black</option>
+                <option value="R">Red</option>
+                <option value="G">Red</option>
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>Restart with data input?</FormLabel>
+              <Button onClick={() => setData([])}>Restart</Button>
+            </FormControl>
           </SimpleGrid>
         </Box>
+        <Divider marginY="6" />
         <SimpleGrid columns={4}>
           {data
             .sort((a, b) =>
@@ -129,15 +149,24 @@ function App() {
                 borderRadius="lg"
                 overflow="hidden"
               >
-                <Image
-                  src={cardData[card.Name]}
-                  title={`${card.Name} - ${card["GP WR"]}`}
-                />
-                <Box p="3">
-                  <UnorderedList>
-                    <ListItem> Win Rate: {card["GP WR"]}</ListItem>
-                  </UnorderedList>
-                </Box>
+                <Popover>
+                  <PopoverTrigger>
+                    <Image
+                      src={cardData[card.Name]}
+                      title={`${card.Name} - ${card["GP WR"]}`}
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverHeader>Stats</PopoverHeader>
+                    <PopoverBody>
+                      <UnorderedList>
+                        <ListItem> Win Rate: {card["GP WR"]}</ListItem>
+                      </UnorderedList>
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
               </Box>
             ))}
         </SimpleGrid>
