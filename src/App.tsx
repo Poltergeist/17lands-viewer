@@ -25,7 +25,7 @@ import {
 type CsvData = {
   Name: string;
   "GP WR": string;
-  Rarity: "C" | "U" | "R" | "M";
+  Rarity: "C" | "U" | "R" | "M" | null;
   Color: string;
 };
 
@@ -36,6 +36,8 @@ function App() {
   const [data, setData] = useState<CsvData[]>([]);
   const [cardData, setCardData] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(true);
+  const [rarity, setRarity] = useState<CsvData.Rarity>(null);
+  const [color, setColor] = useState<CsvData.Color>("");
 
   useEffect(() => {
     for (let x = Math.ceil(data.length / 30); x > 0; x--) {
@@ -108,7 +110,14 @@ function App() {
           <SimpleGrid columns={3} gap="6">
             <FormControl>
               <FormLabel>Filter for Rarity</FormLabel>
-              <Select placeholder="Select Rarity">
+              <Select
+                placeholder="Select Rarity"
+                onChange={(event) =>
+                  setRarity(
+                    event.target.value !== "" ? event.target.value : null
+                  )
+                }
+              >
                 <option value="C">Common</option>
                 <option value="U">Uncommon</option>
                 <option value="R">Rare</option>
@@ -117,12 +126,16 @@ function App() {
             </FormControl>
             <FormControl>
               <FormLabel>Filter for Color</FormLabel>
-              <Select placeholder="Select Rarity">
+              <Select
+                placeholder="Select Color"
+                onChange={(event) => setColor(event.target.value)}
+              >
                 <option value="W">White</option>
                 <option value="U">Blue</option>
                 <option value="B">Black</option>
                 <option value="R">Red</option>
-                <option value="G">Red</option>
+                <option value="G">Green</option>
+                <option value="M">Multicolor</option>
               </Select>
             </FormControl>
             <FormControl>
@@ -134,6 +147,19 @@ function App() {
         <Divider marginY="6" />
         <SimpleGrid columns={4}>
           {data
+            .filter((card) => {
+              let show = true;
+              if (rarity != null) {
+                show = card.Rarity === rarity;
+              }
+              if (show && color !== "" && color !== "M") {
+                show = card.Color.includes(color);
+              }
+              if (show && color !== "" && color === "M") {
+                show = card.Color.length > 1;
+              }
+              return show;
+            })
             .sort((a, b) =>
               parsePercent(a["GP WR"]) === parsePercent(b["GP WR"])
                 ? 0
