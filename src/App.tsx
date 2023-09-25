@@ -21,27 +21,38 @@ import {
   Textarea,
   UnorderedList,
 } from "@chakra-ui/react";
+type ResponseData = {
+  data: Array<{
+    name: string;
+    image_uris: { normal: string };
+    card_faces?: Array<{ name: string }>;
+  }>;
+};
+type Color = string;
+type Rarity = "C" | "U" | "R" | "M" | null;
 
 type CsvData = {
   Name: string;
   "GP WR": string;
-  Rarity: "C" | "U" | "R" | "M" | null;
-  Color: string;
+  Rarity: Rarity;
+  Color: Color;
 };
+
+type CardDataMap = { [key: string]: string };
 
 const parsePercent = (percantage: string) => {
   return percantage.trim() === "" ? 0 : parseFloat(percantage);
 };
 function App() {
   const [data, setData] = useState<CsvData[]>([]);
-  const [cardData, setCardData] = useState<{ [key: string]: string }>({});
+  const [cardData, setCardData] = useState<CardDataMap>({});
   const [loading, setLoading] = useState(true);
-  const [rarity, setRarity] = useState<CsvData.Rarity>(null);
-  const [color, setColor] = useState<CsvData.Color>("");
+  const [rarity, setRarity] = useState<Rarity>(null);
+  const [color, setColor] = useState<Color>("");
 
   useEffect(() => {
     for (let x = Math.ceil(data.length / 30); x > 0; x--) {
-      const images = {};
+      const images: CardDataMap = {};
       const reqData = {
         identifiers: data
           .slice((x - 1) * 30, x * 30)
@@ -61,11 +72,12 @@ function App() {
         },
         body: JSON.stringify(reqData),
       })
-        .then((response) => response.json())
+        .then((response) => response.json() as Promise<ResponseData>)
         .then((json) => {
           json.data.forEach((card) => {
-            if (card.card_faces != null) {
-              images[card.card_faces?.[0]?.name] = card.image_uris.normal;
+            const name = card.card_faces?.[0]?.name;
+            if (name != null) {
+              images[name] = card.image_uris.normal;
             } else {
               images[card.name] = card.image_uris.normal;
             }
@@ -114,7 +126,9 @@ function App() {
                 placeholder="Select Rarity"
                 onChange={(event) =>
                   setRarity(
-                    event.target.value !== "" ? event.target.value : null
+                    event.target.value !== ""
+                      ? (event.target.value as Rarity)
+                      : null
                   )
                 }
               >
