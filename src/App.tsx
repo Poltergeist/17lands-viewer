@@ -25,7 +25,7 @@ type ResponseData = {
   data: Array<{
     name: string;
     image_uris: { normal: string };
-    card_faces?: Array<{ name: string }>;
+    card_faces?: Array<{ name: string; image_uris: { normal: string } }>;
   }>;
 };
 type Color = string;
@@ -51,11 +51,12 @@ function App() {
   const [color, setColor] = useState<Color>("");
 
   useEffect(() => {
-    for (let x = Math.ceil(data.length / 30); x > 0; x--) {
+    const pageSize = 75;
+    for (let x = Math.ceil(data.length / pageSize); x > 0; x--) {
       const images: CardDataMap = {};
       const reqData = {
         identifiers: data
-          .slice((x - 1) * 30, x * 30)
+          .slice((x - 1) * pageSize, x * pageSize)
           .reduce<Array<{ name: string }>>(
             (acc, card) => [...acc, { name: card.Name }],
             []
@@ -70,10 +71,14 @@ function App() {
       })
         .then((response) => response.json() as Promise<ResponseData>)
         .then((json) => {
+          console.log(json);
           json.data.forEach((card) => {
             const name = card.card_faces?.[0]?.name;
             if (name != null) {
-              images[name] = card.image_uris.normal;
+              images[name] =
+                (card.image_uris == null
+                  ? card.card_faces?.[0]?.image_uris.normal
+                  : card.image_uris.normal) || "";
             } else {
               images[card.name] = card.image_uris.normal;
             }
@@ -111,6 +116,7 @@ function App() {
       </>
     );
   }
+  console.log(cardData);
   return (
     <>
       <Container maxW="container.lg">
