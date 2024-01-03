@@ -56,12 +56,8 @@ function App() {
       const reqData = {
         identifiers: data
           .slice((x - 1) * 30, x * 30)
-          .reduce<Array<{ name: string; set: string }>>(
-            (acc, card) => [
-              ...acc,
-              { name: card.Name, set: "woe" },
-              { name: card.Name, set: "wot" },
-            ],
+          .reduce<Array<{ name: string }>>(
+            (acc, card) => [...acc, { name: card.Name }],
             []
           ),
       };
